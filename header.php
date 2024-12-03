@@ -28,11 +28,11 @@ if (isset($_POST["botao"])) {
   
         <nav class='flex-container'>
      
-            <a href="publicar.php">Criar Notícia</a>
+            <a href="create.php">Criar Notícia</a>
 
                 <a href="cadastro.php">criar conta</a>
 
-            <?php if (isset($_SESSION['user_id'])): ?>
+            <?php if (isset($_SESSION['id_user'])): ?>
                 <a href="logout.php">Sair</a>
             <?php else: ?>
                 <a href="login.php">Login</a>

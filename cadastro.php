@@ -1,6 +1,5 @@
 <?php
-session_start();
-include ('db.php');
+include('db.php');
 
 // Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -13,28 +12,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($password !== $confirm_password) {
         $error = "As senhas não coincidem!";
     } else {
+        // Escapa o valor de username para evitar SQL Injection
+        $username = $conn->real_escape_string($username);
+        
         // Verifica se o nome de usuário já está registrado
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
-        $stmt->execute(['username' => $username]);
-        $user = $stmt->fetch();
+        $query = ("SELECT * FROM `user` WHERE username = '$username'");
+        $result = $conn->query($query);
 
-        if ($user) {
+        if ($result->num_rows > 0) {
             $error = "Nome de usuário já existe!";
         } else {
             // Criptografa a senha antes de armazená-la
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             // Insere o novo usuário no banco de dados
-            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-            $stmt->execute([$username, $hashed_password]);
-
-            // Redireciona o usuário para a página de login
-            header("Location: login.php");
-            exit;
+            $query = "INSERT INTO user (username, password) VALUES ('$username', '$hashed_password')";
+            if ($conn->query($query)) {
+                // Redireciona o usuário para a página de login
+                header("Location: login.php");
+                exit;
+            } else {
+                $error = "Erro ao registrar o usuário: " . $conn->error;
+            }
         }
     }
 }
-
 ?>
 
 <?php include 'header.php'; ?>
